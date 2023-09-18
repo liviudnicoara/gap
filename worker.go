@@ -1,7 +1,6 @@
 package gap
 
 import (
-	"fmt"
 	"time"
 )
 
@@ -88,7 +87,6 @@ func (tw *taskWorker) StartTemporary(temporaryWorkerPool <-chan struct{}, timeou
 			case <-tw.done:
 				return
 			case <-t.C:
-				fmt.Println("timeout")
 				return
 			}
 		}
