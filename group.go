@@ -33,11 +33,13 @@ func NewGroupInPool(pool TaskPool) *TaskGroup {
 
 func (tg *TaskGroup) dispatchResults() {
 	// Start a goroutine that will gather results
-	sem := make(chan struct{})
+	sem := make(chan struct{}, 1)
 	defer close(sem)
 
+	sem <- struct{}{}
+
 	go func(started <-chan struct{}) {
-		sem <- struct{}{}
+		<-started
 
 		for r := range tg.resultsChannel {
 			tg.resultsStore = append(tg.resultsStore, r)
@@ -45,7 +47,7 @@ func (tg *TaskGroup) dispatchResults() {
 		}
 	}(sem)
 
-	<-sem
+	sem <- struct{}{}
 }
 
 // Do adds a task to the TaskGroup for execution.

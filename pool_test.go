@@ -5,19 +5,6 @@ import (
 	"time"
 )
 
-// MockTaskWorker is a mock implementation of the TaskWorker interface for testing.
-type MockTaskWorker struct {
-	executedTasks []Task
-}
-
-func (m *MockTaskWorker) Start() {
-	// Mock implementation for Start method
-}
-
-func (m *MockTaskWorker) StartTemporary(temporaryWorkerPool <-chan struct{}, timeout time.Duration) {
-	// Mock implementation for StartTemporary method
-}
-
 func TestNewTaskPool(t *testing.T) {
 	// Create a mock configuration
 	mockConfig := &Config{

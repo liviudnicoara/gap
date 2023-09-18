@@ -27,7 +27,7 @@ func NewTaskPool(config *Config) TaskPool {
 	max := config.MaxWorkers
 	timeout := config.WorkerTimeout
 
-	if base <= 0 || max <= 0 {
+	if base <= 0 || max < 0 {
 		panic("BaseWorkers and MaxWorkers must be positive values")
 	}
 
@@ -45,10 +45,19 @@ func NewTaskPool(config *Config) TaskPool {
 		done:                   make(chan struct{}),
 	}
 
+	started := make(chan struct{}, base)
+	for i := 0; i < base; i++ {
+		started <- struct{}{}
+	}
+
 	// Start base worker goroutines.
 	for i := 0; i < base; i++ {
 		w := NewTaskWorker(appPool.done, appPool.tasks)
-		w.Start()
+		w.Start(started)
+	}
+
+	for i := 0; i < base; i++ {
+		started <- struct{}{}
 	}
 
 	return appPool

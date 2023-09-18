@@ -22,7 +22,7 @@ type Task struct {
 
 // TaskWorker is an interface for executing tasks.
 type TaskWorker interface {
-	Start()
+	Start(<-chan struct{})
 	StartTemporary(<-chan struct{}, time.Duration)
 }
 
@@ -41,8 +41,10 @@ func NewTaskWorker(done <-chan struct{}, tasks <-chan Task) TaskWorker {
 }
 
 // Start starts the task worker, continuously executing tasks.
-func (tw *taskWorker) Start() {
+func (tw *taskWorker) Start(started <-chan struct{}) {
 	go func() {
+		<-started
+
 		for {
 			select {
 			case task := <-tw.tasks:
