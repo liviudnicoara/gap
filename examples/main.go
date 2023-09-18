@@ -58,8 +58,8 @@ func GetCommonNameByAlphaCode(alphaCode string) (string, error) {
 	return (*countryResponses)[0].Name.Common, nil
 }
 
-// GetTodoID retrieves the "id" from the specified URL
-func GetTodoID(id int) (int, error) {
+// GetTodoByID retrieves the "id" from the specified URL
+func GetTodoByID(id int) (int, error) {
 
 	// Construct the URL
 	url := fmt.Sprintf("https://jsonplaceholder.typicode.com/todos/%d", id)
@@ -82,33 +82,35 @@ func main() {
 		"NLD", "BEL", "SWE", "NOR", "FIN",
 	}
 
-	g := gap.NewGroup()
+	countryGroup := gap.NewGroup()
 
 	for _, c := range alphaCodes {
 		code := c
-		g.Do(func() (interface{}, error) {
+		countryGroup.Do(func() (interface{}, error) {
 			return GetCommonNameByAlphaCode(code)
 		})
 	}
 
-	g2 := gap.NewGroup()
+	todoGroup := gap.NewGroup()
+
+	fmt.Println("Active go routines: ", gap.Running())
 
 	for i := 1; i < 5; i++ {
 		id := i
-		g.Do(func() (interface{}, error) {
-			return GetTodoID(id)
+		countryGroup.Do(func() (interface{}, error) {
+			return GetTodoByID(id)
 		})
 	}
 
 	fmt.Println("Getting country results")
-	results2 := g2.GetResults()
-	for _, r := range results2 {
+	countryResults := todoGroup.GetResults()
+	for _, r := range countryResults {
 		fmt.Println(r.Result)
 	}
 
 	fmt.Println("Getting todo results")
-	results := g.GetResults()
-	for _, r := range results {
+	todoResults := countryGroup.GetResults()
+	for _, r := range todoResults {
 		fmt.Println(r.Result)
 	}
 }

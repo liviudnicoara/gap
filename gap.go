@@ -6,6 +6,10 @@ var (
 	defaultPool = NewTaskPool(configs)
 )
 
+func DefaultPool() *TaskPool {
+	return &defaultPool
+}
+
 // Running retrunrs the number of current running go routiens
 func Running() int {
 	return defaultPool.Running()

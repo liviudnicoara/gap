@@ -14,12 +14,24 @@ type TaskGroup struct {
 
 // NewGroup creates a new TaskGroup for managing and executing a group of tasks concurrently.
 func NewGroup() *TaskGroup {
+	return NewGroupInPool(defaultPool)
+}
+
+// NewGroup creates a new TaskGroup for managing and executing a group of tasks concurrentlyin a specified pool.
+func NewGroupInPool(pool TaskPool) *TaskGroup {
 	taskGroup := &TaskGroup{
-		taskPool:       NewTaskPool(EnvConfigs), // Create a task pool with default configuration.
-		resultsChannel: make(chan TaskResult),   // Create a channel to collect task results.
-		resultsStore:   []TaskResult{},          // Initialize an empty slice to store task results.
+		taskPool:       pool,                  // Create a task pool with default configuration.
+		resultsChannel: make(chan TaskResult), // Create a channel to collect task results.
+		resultsStore:   []TaskResult{},        // Initialize an empty slice to store task results.
 	}
 
+	// Start a goroutine that will gather results
+	taskGroup.dispatchResults()
+
+	return taskGroup
+}
+
+func (tg *TaskGroup) dispatchResults() {
 	// Start a goroutine that will gather results
 	sem := make(chan struct{})
 	defer close(sem)
@@ -27,15 +39,13 @@ func NewGroup() *TaskGroup {
 	go func(started <-chan struct{}) {
 		sem <- struct{}{}
 
-		for r := range taskGroup.resultsChannel {
-			taskGroup.resultsStore = append(taskGroup.resultsStore, r)
-			taskGroup.wg.Done()
+		for r := range tg.resultsChannel {
+			tg.resultsStore = append(tg.resultsStore, r)
+			tg.wg.Done()
 		}
 	}(sem)
 
 	<-sem
-
-	return taskGroup
 }
 
 // Do adds a task to the TaskGroup for execution.
