@@ -4,7 +4,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/liviudnicoara/go-app-pool/util"
+	"github.com/liviudnicoara/gap/util"
 )
 
 // once is used for ensuring that the task pool is initialized only once.
