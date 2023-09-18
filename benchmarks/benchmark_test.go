@@ -1,7 +1,6 @@
 package benchmarks
 
 import (
-	"runtime"
 	"sync"
 	"testing"
 	"time"
@@ -21,27 +20,6 @@ func demoFunc(a, b int) (int, error) {
 	time.Sleep(time.Duration(BenchParam) * time.Millisecond)
 	c := a + b
 	return c, nil
-}
-
-func demoPoolFunc(args interface{}) {
-	n := args.(int)
-	time.Sleep(time.Duration(n) * time.Millisecond)
-}
-
-func longRunningFunc() {
-	for {
-		runtime.Gosched()
-	}
-}
-
-func longRunningPoolFunc(arg interface{}) {
-	if ch, ok := arg.(chan struct{}); ok {
-		<-ch
-		return
-	}
-	for {
-		runtime.Gosched()
-	}
 }
 
 func BenchmarkGoroutines(b *testing.B) {
@@ -132,36 +110,3 @@ func BenchmarkGAP(b *testing.B) {
 		_ = g.GetResults()
 	}
 }
-
-// func BenchmarkGoroutinesThroughput(b *testing.B) {
-// 	for i := 0; i < b.N; i++ {
-// 		for j := 0; j < RunTimes; j++ {
-// 			go demoFunc()
-// 		}
-// 	}
-// }
-
-// func BenchmarkSemaphoreThroughput(b *testing.B) {
-// 	sema := make(chan struct{}, PoolCap)
-// 	for i := 0; i < b.N; i++ {
-// 		for j := 0; j < RunTimes; j++ {
-// 			sema <- struct{}{}
-// 			go func() {
-// 				demoFunc()
-// 				<-sema
-// 			}()
-// 		}
-// 	}
-// }
-
-// func BenchmarkAntsPoolThroughput(b *testing.B) {
-// 	p, _ := NewPool(PoolCap, WithExpiryDuration(DefaultExpiredTime))
-// 	defer p.Release()
-
-// 	b.ResetTimer()
-// 	for i := 0; i < b.N; i++ {
-// 		for j := 0; j < RunTimes; j++ {
-// 			_ = p.Submit(demoFunc)
-// 		}
-// 	}
-// }
