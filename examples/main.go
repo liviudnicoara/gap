@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/liviudnicoara/go-app-pool/gap"
+	"github.com/liviudnicoara/gap"
 )
 
 // CountryResponse represents the JSON response structure from the API
@@ -81,7 +81,7 @@ func main() {
 		"NLD", "BEL", "SWE", "NOR", "FIN",
 	}
 
-	pool := gap.NewTaskPool(5, 7)
+	pool := gap.NewTaskPool()
 
 	g := gap.NewGroup()
 
@@ -113,6 +113,7 @@ func main() {
 		fmt.Println(r.Result)
 	}
 
+	time.Sleep(15 * time.Second)
 	pool.Stop()
 	time.Sleep(5 * time.Second)
 }
