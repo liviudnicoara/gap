@@ -4,11 +4,16 @@
 
 GAP is a GoLang library that provides a task pool for managing and executing tasks concurrently. It allows you to efficiently execute multiple tasks using a pool of worker goroutines, making it suitable for tasks that can be parallelized.
 
+## Usecases
+GAP was designed to provided a limitation on spanned go routines in a business flow. For example, GAP can be used to limit all http calls that you application does (see Usage section below)
+
 ## Features
 
-- **Task Pool Management**: Go App Pool allows you to create and manage a task pool with configurable worker counts and timeout settings.
+- **Task Pool Management**: Go App Pool allows you to create and manage a task pool with configurable base worker counts, max worker counts and timeout settings.
 
-- **Task Grouping**: You can use the provided TaskGroup to manage and execute a group of tasks concurrently and collect their results.
+- **Task Grouping**: You can use the provided Group to manage and execute a group of tasks concurrently and collect their results.
+
+- **Temporary workers**: You can configure GAP to create the desired number of workers during a high load and to stop them after an idle timeout.
 
 - **Environment Variable Configuration**: Go App Pool supports configuration through environment variables, making it easy to adjust worker counts and timeouts without modifying the code.
 
@@ -23,7 +28,7 @@ GAP is a GoLang library that provides a task pool for managing and executing tas
 1. Clone the repository:
 
    ```shell
-   git clone <repository-url>
+   git clone https://github.com/liviudnicoara/gap
    ```
 
 2. Navigate to the project directory:
@@ -47,7 +52,7 @@ GAP is a GoLang library that provides a task pool for managing and executing tas
 Import the gap package in your Go application:
 
 ```go
-import "github.com/your-username/go-app-pool/gap"
+import "github.com/liviudnicoara/gap"
 ```
 Create a TaskPool using the provided configuration:
 
@@ -68,17 +73,57 @@ taskGroup.Do(func() (interface{}, error) {
 // Wait for all tasks to complete and collect results
 results := taskGroup.GetResults()
 ```
+Create task groups for different uses case: 
+
+```go
+
+defer gap.Stop()
+
+	alphaCodes := []string{	"USA", "CAN", "GBR", "FRA" }
+
+	countryGroup := gap.NewGroup()
+
+	for _, c := range alphaCodes {
+		code := c
+		countryGroup.Do(func() (interface{}, error) {
+			return GetCommonNameByAlphaCode(code)
+		})
+	}
+
+	todoGroup := gap.NewGroup()
+
+	fmt.Println("Active go routines: ", gap.Running())
+
+	for i := 1; i < 5; i++ {
+		id := i
+		countryGroup.Do(func() (interface{}, error) {
+			return GetTodoByID(id)
+		})
+	}
+
+	fmt.Println("Getting country results")
+	countryResults := todoGroup.GetResults()
+	for _, r := range countryResults {
+		fmt.Println(r.Result)
+	}
+
+	fmt.Println("Getting todo results")
+	todoResults := countryGroup.GetResults()
+	for _, r := range todoResults {
+		fmt.Println(r.Result)
+	}
+```
 
 Customize the task pool configuration by adjusting environment variables (see Configuration section below).
 
 ### Configuration
 Go App Pool can be configured using environment variables. Here are the available configuration options:
 
-BASE_WORKERS_ENV: The number of base worker goroutines (default: 10).
+GAP_BASE_WORKERS: The number of base worker goroutines that will be active while your application is running
 
-MAX_WORKERS_ENV: The maximum number of worker goroutines (default: 10).
+GAP_MAX_WORKERS: The maximum number of worker goroutines. Temporary workers will be created during high load and removed after an idle time
 
-WORKER_TIMEOUT_ENV: The timeout for temporary worker goroutines (default: "10s").
+GAP_WORKER_TIMEOUT: The timeout for temporary worker goroutines (default: "10s").
 
 ### Examples
 For code examples and advanced usage, please refer to the examples directory.
