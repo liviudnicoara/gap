@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/liviudnicoara/gap"
 )
@@ -74,14 +73,14 @@ func GetTodoID(id int) (int, error) {
 }
 
 func main() {
+	defer gap.Stop()
+
 	alphaCodes := []string{
 		"USA", "CAN", "GBR", "FRA", "GER",
 		"AUS", "JPN", "CHN", "BRA", "IND",
 		"RUS", "MEX", "ARG", "ITA", "ESP",
 		"NLD", "BEL", "SWE", "NOR", "FIN",
 	}
-
-	pool := gap.NewTaskPool()
 
 	g := gap.NewGroup()
 
@@ -112,8 +111,4 @@ func main() {
 	for _, r := range results {
 		fmt.Println(r.Result)
 	}
-
-	time.Sleep(15 * time.Second)
-	pool.Stop()
-	time.Sleep(5 * time.Second)
 }

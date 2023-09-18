@@ -15,9 +15,9 @@ type TaskGroup struct {
 // NewGroup creates a new TaskGroup for managing and executing a group of tasks concurrently.
 func NewGroup() *TaskGroup {
 	taskGroup := &TaskGroup{
-		taskPool:       NewTaskPool(),         // Create a task pool with default configuration.
-		resultsChannel: make(chan TaskResult), // Create a channel to collect task results.
-		resultsStore:   []TaskResult{},        // Initialize an empty slice to store task results.
+		taskPool:       NewTaskPool(EnvConfigs), // Create a task pool with default configuration.
+		resultsChannel: make(chan TaskResult),   // Create a channel to collect task results.
+		resultsStore:   []TaskResult{},          // Initialize an empty slice to store task results.
 	}
 
 	// Start a goroutine that will gather results
