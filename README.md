@@ -7,7 +7,7 @@
 Library `gap` implements a goroutine pool with initial fixed capacity, allowing developers to limit the number of goroutines in your concurrent programs.
 
 
-## Usecases
+## 🛠 Use cases
 GAP was designed to provided a limitation on spanned go routines in a business flow. For example, GAP can be used to limit all http calls that you application does (see Usage section below)
 
 ## 🚀 Features:
@@ -121,3 +121,4 @@ Contributions are welcome! If you'd like to contribute to Go App Pool, please fo
 
 ### License
 This project is licensed under the MIT License - see the LICENSE file for details.
+
