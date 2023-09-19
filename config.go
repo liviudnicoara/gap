@@ -1,7 +1,6 @@
 package gap
 
 import (
-	"log"
 	"time"
 
 	"github.com/spf13/viper"
@@ -21,14 +20,19 @@ type Config struct {
 func loadEnvVariables() (config *Config) {
 	viper.SetConfigFile(".env")
 
-	// Viper reads all the variables from env file and log error if any found
-	if err := viper.ReadInConfig(); err != nil {
-		log.Fatal("Error reading env file", err)
+	defaultConfig := Config{
+		BaseWorkers:   100,
+		MaxWorkers:    1000,
+		WorkerTimeout: time.Second,
 	}
 
-	// Viper unmarshals the loaded env varialbes into the struct
-	if err := viper.Unmarshal(&config); err != nil {
-		log.Fatal(err)
+	if err := viper.ReadInConfig(); err != nil {
+		config = &defaultConfig
 	}
+
+	if err := viper.Unmarshal(&config); err != nil {
+		config = &defaultConfig
+	}
+
 	return
 }

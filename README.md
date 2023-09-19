@@ -2,12 +2,15 @@
 
 # GAP - A Global Go App Pool
 
-GAP is a GoLang library that provides a task pool for managing and executing tasks concurrently. It allows you to efficiently execute multiple tasks using a pool of worker goroutines, making it suitable for tasks that can be parallelized.
+## 📖 Introduction
+
+Library `gap` implements a goroutine pool with initial fixed capacity, allowing developers to limit the number of goroutines in your concurrent programs.
+
 
 ## Usecases
 GAP was designed to provided a limitation on spanned go routines in a business flow. For example, GAP can be used to limit all http calls that you application does (see Usage section below)
 
-## Features
+## 🚀 Features:
 
 - **Task Pool Management**: Go App Pool allows you to create and manage a task pool with configurable base worker counts, max worker counts and timeout settings.
 
@@ -17,43 +20,28 @@ GAP was designed to provided a limitation on spanned go routines in a business f
 
 - **Environment Variable Configuration**: Go App Pool supports configuration through environment variables, making it easy to adjust worker counts and timeouts without modifying the code.
 
-## Getting Started
 
-### Prerequisites
+## 💡 How `gap` works
 
-- Go (Golang) must be installed on your system. You can download it from [here](https://golang.org/dl/).
+1. When your application starts, gap creates the base number of go routines defined in the configuration
+2. The active workers will listent for any new task
+3. The developer creates a group of tasks and asigns a function to each task using the `Do` method (simmilar to errorgroup library)
+4. Afterwards, it waits for the results using `GetResults` method
+5. If the number of tasks exceeds the base number of goroutines, `gap` creates temprary workers up to the max value defined in the config.
+6. After an idle tiemoput time, the temprary workers are stopped.
 
-### Installation
 
-1. Clone the repository:
+## 🧰 How to install
 
-   ```shell
-   git clone https://github.com/liviudnicoara/gap
-   ```
-
-2. Navigate to the project directory:
-
-    ```shell
-    cd go-app-pool
-    ```
-
-3. Build the application:
-
-    ```shell
-    go build
-    ```
-
-4. Run the example:
-    ```shell
-    go run .
-    ```
-
-### Usage
-Import the gap package in your Go application:
+``` powershell
+go get github.com/liviudnicoara/gap
+```
 
 ```go
 import "github.com/liviudnicoara/gap"
 ```
+
+### Usage
 Create a TaskPool using the provided configuration:
 
 ```go
@@ -119,11 +107,11 @@ Customize the task pool configuration by adjusting environment variables (see Co
 ### Configuration
 Go App Pool can be configured using environment variables. Here are the available configuration options:
 
-GAP_BASE_WORKERS: The number of base worker goroutines that will be active while your application is running
+`GAP_BASE_WORKERS`: The number of base worker goroutines that will be active while your application is running. Defaults to `100`.
 
-GAP_MAX_WORKERS: The maximum number of worker goroutines. Temporary workers will be created during high load and removed after an idle time
+`GAP_MAX_WORKERS`: The maximum number of worker goroutines. Temporary workers will be created during high load and removed after an idle time. Defaults to `1000`.
 
-GAP_WORKER_TIMEOUT: The timeout for temporary worker goroutines (default: "10s").
+`GAP_WORKER_TIMEOUT`: The timeout for temporary worker goroutines  Defaults to `1s`.
 
 ### Examples
 For code examples and advanced usage, please refer to the examples directory.
