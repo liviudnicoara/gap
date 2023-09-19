@@ -42,11 +42,7 @@ import "github.com/liviudnicoara/gap"
 ```
 
 ### Usage
-Create a TaskPool using the provided configuration:
 
-```go
-taskPool := gap.NewTaskPool()
-```
 Use the TaskGroup to manage and execute tasks concurrently:
 
 ```go
@@ -61,45 +57,46 @@ taskGroup.Do(func() (interface{}, error) {
 // Wait for all tasks to complete and collect results
 results := taskGroup.GetResults()
 ```
+
 Create task groups for different uses case: 
 
 ```go
 
 defer gap.Stop()
 
-	alphaCodes := []string{	"USA", "CAN", "GBR", "FRA" }
+alphaCodes := []string{	"USA", "CAN", "GBR", "FRA" }
 
-	countryGroup := gap.NewGroup()
+countryGroup := gap.NewGroup()
 
-	for _, c := range alphaCodes {
-		code := c
-		countryGroup.Do(func() (interface{}, error) {
-			return GetCommonNameByAlphaCode(code)
-		})
-	}
+for _, c := range alphaCodes {
+	code := c
+	countryGroup.Do(func() (interface{}, error) {
+		return GetCommonNameByAlphaCode(code)
+	})
+}
 
-	todoGroup := gap.NewGroup()
+todoGroup := gap.NewGroup()
 
-	fmt.Println("Active go routines: ", gap.Running())
+fmt.Println("Active go routines: ", gap.Running())
 
-	for i := 1; i < 5; i++ {
-		id := i
-		countryGroup.Do(func() (interface{}, error) {
-			return GetTodoByID(id)
-		})
-	}
+for i := 1; i < 5; i++ {
+	id := i
+	countryGroup.Do(func() (interface{}, error) {
+		return GetTodoByID(id)
+	})
+}
 
-	fmt.Println("Getting country results")
-	countryResults := todoGroup.GetResults()
-	for _, r := range countryResults {
-		fmt.Println(r.Result)
-	}
+fmt.Println("Getting country results")
+countryResults := todoGroup.GetResults()
+for _, r := range countryResults {
+	fmt.Println(r.Result)
+}
 
-	fmt.Println("Getting todo results")
-	todoResults := countryGroup.GetResults()
-	for _, r := range todoResults {
-		fmt.Println(r.Result)
-	}
+fmt.Println("Getting todo results")
+todoResults := countryGroup.GetResults()
+for _, r := range todoResults {
+	fmt.Println(r.Result)
+}
 ```
 
 Customize the task pool configuration by adjusting environment variables (see Configuration section below).
