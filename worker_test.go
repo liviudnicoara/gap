@@ -30,7 +30,7 @@ func TestTaskWorker_Start(t *testing.T) {
 	worker := NewTaskWorker(done, tasks)
 
 	// Start the task worker
-	go worker.Start(make(<-chan struct{}))
+	worker.Start()
 
 	// Create a sample task
 	task := Task{

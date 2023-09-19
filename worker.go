@@ -22,7 +22,7 @@ type Task struct {
 
 // TaskWorker is an interface for executing tasks.
 type TaskWorker interface {
-	Start(<-chan struct{})
+	Start()
 	StartTemporary(<-chan struct{}, time.Duration)
 }
 
@@ -41,9 +41,12 @@ func NewTaskWorker(done <-chan struct{}, tasks <-chan Task) TaskWorker {
 }
 
 // Start starts the task worker, continuously executing tasks.
-func (tw *taskWorker) Start(started <-chan struct{}) {
-	go func() {
-		<-started
+func (tw *taskWorker) Start() {
+	started := make(chan struct{}, 1)
+	started <- struct{}{}
+
+	go func(s <-chan struct{}) {
+		<-s
 
 		for {
 			select {
@@ -61,12 +64,19 @@ func (tw *taskWorker) Start(started <-chan struct{}) {
 				return
 			}
 		}
-	}()
+	}(started)
+
+	started <- struct{}{}
+	close(started)
 }
 
 // StartTemporary starts a temporary task worker with a timeout.
 func (tw *taskWorker) StartTemporary(temporaryWorkerPool <-chan struct{}, timeout time.Duration) {
-	go func() {
+	started := make(chan struct{}, 1)
+	started <- struct{}{}
+
+	go func(s <-chan struct{}) {
+		<-s
 		t := time.NewTimer(timeout)
 
 		defer func() {
@@ -92,5 +102,8 @@ func (tw *taskWorker) StartTemporary(temporaryWorkerPool <-chan struct{}, timeou
 				return
 			}
 		}
-	}()
+	}(started)
+
+	started <- struct{}{}
+	close(started)
 }

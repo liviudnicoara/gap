@@ -45,19 +45,10 @@ func NewTaskPool(config *Config) TaskPool {
 		done:                   make(chan struct{}),
 	}
 
-	started := make(chan struct{}, base)
-	for i := 0; i < base; i++ {
-		started <- struct{}{}
-	}
-
 	// Start base worker goroutines.
 	for i := 0; i < base; i++ {
 		w := NewTaskWorker(appPool.done, appPool.tasks)
-		w.Start(started)
-	}
-
-	for i := 0; i < base; i++ {
-		started <- struct{}{}
+		w.Start()
 	}
 
 	return appPool
